@@ -100,8 +100,7 @@ export class LiveGateway implements OnGatewayDisconnect {
         return acc.filter(
           (pCall) =>
             !(
-              pCall.from.data.userId == val.data.from.data.userId &&
-              pCall.to.data.userId == val.data.to.data.userId
+              pCall.from.id == val.data.from.id && pCall.to.id == val.data.to.id
             ),
         );
       } else if (val.type == 'onl') {
@@ -224,7 +223,7 @@ export class LiveGateway implements OnGatewayDisconnect {
             };
           }
           const allSockets = await this.server.fetchSockets();
-          const toSocket = allSockets.find((s) => (s.data.userId = userId));
+          const toSocket = allSockets.find((s) => s.data.userId == userId);
           if (!toSocket) {
             return {
               error: {
@@ -330,7 +329,7 @@ export class LiveGateway implements OnGatewayDisconnect {
       map((calls) =>
         calls.find((call) => call.some((s) => s.data.userId == userId)),
       ),
-      distinctUntilChanged(),
+      distinctUntilChanged((a, b) => !a === !b || !!a === !!b),
       map((call) => ({
         event: 'callActive',
         data: {
