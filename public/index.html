@@ -1,0 +1,37 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script
+      src="https://cdn.socket.io/4.1.2/socket.io.min.js"
+      integrity="sha384-toS6mmwu70G0fw54EGlWWeA4z3dyJ+dlXBtSURSKN4vyRFOcxd3Bzjj/AoOwY+Rg"
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="index.js"></script>
+
+    <title>Nia</title>
+  </head>
+  <body>
+    <input type="text" id="userId" />
+    <button onclick="join()">Join</button>
+
+    <input type="text" id="outuserId" />
+    <button onclick="call()">Call</button>
+
+    <button onclick="accept()">Accept CAll</button>
+
+    <div id="outCall" style="font-weight: 500; font-size: 17px;">
+      Out Call
+    </div>
+    <div id="inCall" style="font-weight: 500; font-size: 17px;">
+      InCall
+    </div>
+    <div id="call" style="font-weight: 500; font-size: 17px;">
+      Call
+    </div>
+
+  </body>
+</html>
