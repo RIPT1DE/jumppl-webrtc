@@ -274,7 +274,7 @@ export class LiveGateway implements OnGatewayDisconnect {
         switchMap(async (calls) => {
           const thisUserId = socket.data.userId;
           const call = calls.find((c) =>
-            c.some((member) => member.id == thisUserId),
+            c.some((member) => member.id == socket.id),
           );
           if (!call) {
             return {
