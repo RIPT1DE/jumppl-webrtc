@@ -80,6 +80,7 @@ export class LiveGateway implements OnGatewayDisconnect {
         ),
       ),
     ),
+    this._callEnded$.pipe(map((d) => ({ type: 'ended' as const, data: d }))),
     this._callAnswered$.pipe(map((d) => ({ type: 'ans' as const, data: d }))),
     this._isOnline$.pipe(
       switchMap(() => this.server.fetchSockets()),
@@ -108,6 +109,13 @@ export class LiveGateway implements OnGatewayDisconnect {
           (call) =>
             val.data.some((socket) => socket.id == call.from.id) &&
             val.data.some((socket) => socket.id == call.to.id),
+        );
+      } else if (val.type == 'ended') {
+        return acc.filter(
+          (call) =>
+            !(
+              call.from.id == val.data.sock.id || call.to.id == val.data.sock.id
+            ),
         );
       }
       return acc;
