@@ -70,6 +70,10 @@ export class LiveGateway implements OnGatewayDisconnect {
     from: RemoteSocket<Events>;
     data: any;
   }>();
+  private readonly _callMissed$ = new Subject<{
+    from: RemoteSocket<Events>;
+    to: RemoteSocket<Events>;
+  }>();
 
   private readonly _pendingCalls$ = merge(
     this._callInitiated$.pipe(
@@ -91,12 +95,17 @@ export class LiveGateway implements OnGatewayDisconnect {
       if (val.type == 'init') {
         return [...acc, { from: val.data.from, to: val.data.to }];
       } else if (val.type == 'rej') {
-        return acc.filter(
-          (pCall) =>
-            !(
-              pCall.from.id == val.data.from.id && pCall.to.id == val.data.to.id
-            ),
-        );
+        return acc.filter((pCall) => {
+          const timedOut =
+            pCall.from.id == val.data.from.id && pCall.to.id == val.data.to.id;
+          if (timedOut) {
+            this._callMissed$.next({
+              from: pCall.from,
+              to: pCall.to,
+            });
+          }
+          return !timedOut;
+        });
       } else if (val.type == 'ans') {
         return acc.filter(
           (pCall) =>
@@ -171,6 +180,7 @@ export class LiveGateway implements OnGatewayDisconnect {
       this.listenIncomingCall(userId),
       this.listenOutCall(userId),
       this.listenCallMessages(client),
+      this.listenMissedCall(client),
     );
   }
 
@@ -363,6 +373,17 @@ export class LiveGateway implements OnGatewayDisconnect {
       map(([mes]) => ({
         event: 'callMessage',
         data: mes.data,
+      })),
+    );
+  }
+
+  listenMissedCall(socket: RemoteSocket<Events>) {
+    return this._callMissed$.pipe(
+      filter((missed) => missed.to.id == socket.id),
+      map((missed) => missed.from.data.userId),
+      map((id) => ({
+        event: 'callMissed',
+        data: id,
       })),
     );
   }
